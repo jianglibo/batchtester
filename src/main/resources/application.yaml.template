@@ -1,0 +1,97 @@
+spring:
+    datasource:
+        url: jdbc:hsqldb:file:c:/db/batchtester/db;shutdown=true
+        username: sa
+        password:
+        driver-class-name: org.hsqldb.jdbc.JDBCDriver
+        validation-query: select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
+        test-on-borrow: true
+    secondarydatasource:
+        url: jdbc:mysql://localhost:3306/boottemplate?useUnicode=true&characterEncoding=utf-8
+        username: boottemplate
+        password: 123456
+        driver-class-name: com.mysql.jdbc.Driver
+        validation-query: SELECT 1
+        test-on-borrow: true
+    tomcat:
+        test-on-borrow: true
+        max-wait: 10000
+    jpa:
+        database: HSQL
+        show-sql: true
+        generate-ddl: true
+#        hibernate:
+#            ddl-auto: update
+#            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+#            dialect: org.hibernate.dialect.H2Dialect
+    messages:
+        basename: messages/shared,messages/children/format,messages/children/validate
+        always-use-message-format: false
+        cache-seconds: -1
+        encoding: UTF-8
+        fallback-to-system-locale: true
+    data:
+        rest:
+            base-path: /api/v1
+    mvc:
+        locale: en
+    thymeleaf:
+        cache: false
+        prefix: classpath:/templates/
+        suffix: .html
+    security:
+        enable-csrf: true
+    batch:
+        job:
+            enabled: false
+    hive:
+        jdbcUrl: jdbc:hive2://10.74.111.62:10000/default
+    hadoop:
+        fsUri: hdfs://10.74.111.62/8020
+#        resourceManagerAddress:
+#        resourceManagerSchedulerAddress:
+#        resourceManagerHost:
+#        resourceManagerPort:
+#        resourceManagerSchedulerPort:
+#        jobHistoryAddress:
+#        resources:
+#        config:
+#            fs:
+#                defaultFS: hdfs://localhost:8020
+        fsshell:
+            enabled: false
+management:
+    security:
+        enabled: false
+server:
+    port: 80
+multipart:
+    enabled: false
+logging:
+    level:
+        cc.openscanner: DEBUG
+        org.springframework.security.web.access: DEBUG
+        org.springframework.jdbc.core: DEBUG
+        com.jianglibo.batch: DEBUG
+---
+spring:
+    profiles: prod
+    security:
+        enable-csrf: true
+server:
+    port: 9008
+    tomcat:
+        remote_ip_header: x-forwarded-for
+        protocol_header: x-forwarded-proto
+# setx SPRING_PROFILES_ACTIVE dev
+---
+spring:
+    profiles: dev
+    security:
+        enable-csrf: true
+    thymeleaf:
+      cache: false
+#      prefix: file:///f:/github/boot-template/src/main/resources/templates/
+    devtools.restart.exclude: public/**
+
+

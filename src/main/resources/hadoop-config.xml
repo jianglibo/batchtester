@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/hadoop"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:beans= "http://www.springframework.org/schema/beans"
+   xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/hadoop
+    http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+<!--    <bean/>  -->
+ 
+<!--    <hdp:configuration/>  -->
+<!--   resources="classpath:/core-site.xml, classpath:/hdfs-site.xml"  -->
+   	<configuration>
+		fs.defaultFS=${spring.hadoop.fsUri}
+	</configuration>
+	
+<!--    	<hdp:hive-client-factory id="hiveClientFactory" hive-data-source-ref="hiveDataSource"/>  -->
+   	<hive-client-factory id="hiveClientFactory"/>   	
+	<beans:bean id="hiveDriver" class="org.apache.hive.jdbc.HiveDriver"/>
+	<beans:bean id="hiveDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+  		<beans:constructor-arg name="driver" ref="hiveDriver"/>
+  		<beans:constructor-arg name="url" value="${spring.hive.jdbcUrl}"/>
+	</beans:bean>
+
+</beans:beans>
