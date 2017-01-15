@@ -15,7 +15,7 @@
     	</listeners>
         <step id="step1">
             <tasklet>
-                <chunk reader="ioSampleJobItemReader" writer="ioSampleJobItemWriter" commit-interval="2" processor="ioSampleJobItemProcessor">
+                <chunk reader="ioSampleJobItemReader" writer="ioSampleJobItemWriter" commit-interval="10" processor="ioSampleJobItemProcessor">
                 </chunk>
             </tasklet>
         </step>

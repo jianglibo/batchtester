@@ -37,11 +37,11 @@ public class TestBadItemInInputJobMultipleInstance extends TbatchBase {
 	
 	@Before
 	public void b() throws NoSuchJobException, IOException {
-		setupFixtures(getJobName(), fixtureItemNumber);
-		List<String> allLines = Files.readAllLines(getFixturePath(getJobName()));
+		setupFixtures(fixtureItemNumber);
+		List<String> allLines = Files.readAllLines(getFixturePath());
 		// replace a bad line.
 		allLines.set(badLinePosition, "1111111111111111");
-		Files.write(getFixturePath(getJobName()), allLines);
+		Files.write(getFixturePath(), allLines);
 		clearDb(null);
 	}
 	
@@ -50,12 +50,12 @@ public class TestBadItemInInputJobMultipleInstance extends TbatchBase {
 		
 		bassertCountTable(null, 0);
 		
-		int jobInstanceNumber = countCurrentJobInstanceNumber(getJobName());
+		int jobInstanceNumber = countCurrentJobInstanceNumber();
 
 		Long jid = jobOperator.startNextInstance(getJobName());
 		JobExecution je1 = jobExplorer.getJobExecution(jid);
 		
-		bassertJobInstanceNumber(getJobName(), jobInstanceNumber + 1);
+		bassertJobInstanceNumber(jobInstanceNumber + 1);
 		// We know job will be failure.
 		assertThat(je1.getStatus(), equalTo(BatchStatus.FAILED));
 		
@@ -69,11 +69,11 @@ public class TestBadItemInInputJobMultipleInstance extends TbatchBase {
 		
 		assertTrue(getWriteCount(je1) % 10 == 0);
 		
-		int steps = countCurrentStepExecNumber(getJobName());
+		int steps = countCurrentStepExecNumber();
 		
 		jid = jobOperator.startNextInstance(getJobName());
 		JobExecution je2 = jobExplorer.getJobExecution(jid);
-		bassertStepExecutionNumber(getJobName(), steps + 1);
+		bassertStepExecutionNumber(steps + 1);
 		
 		assertThat(je2.getStatus(), equalTo(BatchStatus.FAILED));
 		

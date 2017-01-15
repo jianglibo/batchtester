@@ -30,7 +30,7 @@ public class TestMissingInputJob extends TbatchBase {
 
 	@Before
 	public void b() throws NoSuchJobException, IOException {
-		setupFixtures(getJobName(), 1000);
+		setupFixtures(1000);
 		clearDb(null);
 	}
 	
@@ -40,24 +40,24 @@ public class TestMissingInputJob extends TbatchBase {
 		Job jb = jobRegistry.getJob(getJobName());
 		JobExecution je = jobLauncher.run(jb, new JobParameters());
 		
-		bassertJobInstanceNumber(getJobName(), 1);
+		bassertJobInstanceNumber(1);
 		assertThat(je.getStatus(), equalTo(BatchStatus.FAILED));
 		
 		// No record should be inserted.
 		bassertCountTable(null, 0);
 		
 		// run failed job again.
-		int currentJobExecNumber = countCurrentJobExecNumber(getJobName());
-		int currentStepExecNumber = countCurrentStepExecNumber(getJobName());
+		int currentJobExecNumber = countCurrentJobExecNumber();
+		int currentStepExecNumber = countCurrentStepExecNumber();
 		jobLauncher.run(jb, new JobParameters());
 		
 		// If launch job for same parameters, no new job instance should be created.
-		bassertJobInstanceNumber(getJobName(), 1);
+		bassertJobInstanceNumber(1);
 		
 		// Every execution of job should create a new execution instance.
-		bassertJobExecNumber(getJobName(), currentJobExecNumber + 1);
+		bassertJobExecNumber(currentJobExecNumber + 1);
 		
-		bassertStepExecutionNumber(getJobName(), currentStepExecNumber + 1);
+		bassertStepExecutionNumber(currentStepExecNumber + 1);
 		
 	}
 

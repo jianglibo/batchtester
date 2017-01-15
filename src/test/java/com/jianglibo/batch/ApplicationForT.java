@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.config.EnableIntegration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -29,6 +31,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //@ImportResource(locations={"classpath:jobs.xml"})
 @EnableJpaRepositories(basePackages="hello.repository")
 @EnableWebMvc
+@EnableIntegration
+@IntegrationComponentScan
 public class ApplicationForT {
 	
 

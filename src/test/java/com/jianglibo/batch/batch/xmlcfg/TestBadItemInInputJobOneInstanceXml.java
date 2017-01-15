@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.UnexpectedJobExecutionException;
@@ -42,11 +41,11 @@ public class TestBadItemInInputJobOneInstanceXml extends TbatchBase {
 	public void b() throws NoSuchJobException, IOException {
 		// This line
 		clearBatchDb();
-		setupFixtures(getJobName(), fixtureItemNumber);
-		List<String> allLines = Files.readAllLines(getFixturePath(getJobName()));
+		setupFixtures(fixtureItemNumber);
+		List<String> allLines = Files.readAllLines(getFixturePath());
 		// replace a bad line.
 		allLines.set(badLinePosition, "1111111111111111");
-		Files.write(getFixturePath(getJobName()), allLines);
+		Files.write(getFixturePath(), allLines);
 		clearDb(null);
 	}
 	
@@ -55,13 +54,13 @@ public class TestBadItemInInputJobOneInstanceXml extends TbatchBase {
 		
 		bassertCountTable(null, 0);
 		
-		int jobInstanceNumber = countCurrentJobInstanceNumber(getJobName());
+		int jobInstanceNumber = countCurrentJobInstanceNumber();
 
 		// uncomment these line will explain must batch concept.
 		Job jb1 = jobRegistry.getJob(getJobName());
-		JobExecution je1 = jobLauncher.run(jb1, new JobParametersBuilder().addString("input.file.name", "file://" + getFixturePath(getJobName()).toString()).toJobParameters());
+		JobExecution je1 = jobLauncher.run(jb1, new JobParametersBuilder().addString("input.file.name", getFixtureResouceName()).toJobParameters());
 		
-		bassertJobInstanceNumber(getJobName(), jobInstanceNumber + 1);
+		bassertJobInstanceNumber(jobInstanceNumber + 1);
 		
 		// We know job will be failure.
 		assertThat(je1.getStatus(), equalTo(BatchStatus.FAILED));
@@ -77,18 +76,18 @@ public class TestBadItemInInputJobOneInstanceXml extends TbatchBase {
 		bassertCountTable(null, getWriteCount(je1));
 		
 		// Should be at chunk size.
-		assertTrue(getWriteCount(je1) % 10 == 0);
+		assertThat("commited writer should exact division by 10",getWriteCount(je1) % 10 , equalTo(0));
 		
-		int steps = countCurrentStepExecNumber(getJobName());
+		int steps = countCurrentStepExecNumber();
 		
 		Job jb2 = jobRegistry.getJob(getJobName());
 		
-		JobExecution je2 = jobLauncher.run(jb2, new JobParametersBuilder().addString("input.file.name", "file://" + getFixturePath(getJobName()).toString()).toJobParameters());
+		JobExecution je2 = jobLauncher.run(jb2, new JobParametersBuilder().addString("input.file.name", getFixtureResouceName()).toJobParameters());
 		
 		// no new job instance is created, because it has same parameter.
-		bassertJobInstanceNumber(getJobName(), jobInstanceNumber + 1);
+		bassertJobInstanceNumber(jobInstanceNumber + 1);
 		
-		bassertStepExecutionNumber(getJobName(), steps + 1);
+		bassertStepExecutionNumber(steps + 1);
 
 		assertThat(je2.getStatus(), equalTo(BatchStatus.FAILED));
 		

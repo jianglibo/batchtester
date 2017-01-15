@@ -17,16 +17,16 @@ import com.jianglibo.batch.batch.Person;
 import com.jianglibo.batch.batch.PersonItemProcessor;
 
 @Configuration
-public class BadItemInInputBatchConfigurationParams extends BatchCfgBase {
+public class FileToDbHasParameterBatchConfiguration extends BatchCfgBase {
 
-	public static final String JOB_NAME = "badItemInInputJob";
+	public static final String JOB_NAME = "fileToDbHasParameterJob";
 	
-	public BadItemInInputBatchConfigurationParams() {
+	public FileToDbHasParameterBatchConfiguration() {
 		super(JOB_NAME);
 	}
     
     @Bean
-    public FlatFileItemReader<Person> badItemInInputJobItemReader() {
+    public FlatFileItemReader<Person> fileToDbHasParameterJobItemReader() {
         FlatFileItemReader<Person> reader = new FlatFileItemReader<Person>();
         reader.setResource(getFixtureResoruce());
         reader.setLineMapper(new DefaultLineMapper<Person>() {{
@@ -41,7 +41,7 @@ public class BadItemInInputBatchConfigurationParams extends BatchCfgBase {
     }
     
     @Bean
-    public JdbcBatchItemWriter<Person> badItemInInputJobItemWriter() {
+    public JdbcBatchItemWriter<Person> fileToDbHasParameterJobItemWriter() {
         JdbcBatchItemWriter<Person> writer = new JdbcBatchItemWriter<Person>();
         writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Person>());
         writer.setSql("INSERT INTO people1 (first_name, last_name) VALUES (:firstName, :lastName)");
@@ -50,26 +50,26 @@ public class BadItemInInputBatchConfigurationParams extends BatchCfgBase {
     }
     
     @Bean
-    public PersonItemProcessor badItemInInputJobProcessor() {
+    public PersonItemProcessor fileToDbHasParameterJobProcessor() {
         return new PersonItemProcessor();
     }
     
     @Bean
-    public Job badItemInInputJobJob() {
+    public Job fileToDbHasParameterJobJob() {
         return jobBuilderFactory.get(JOB_NAME)
                 .incrementer(new RunIdIncrementer())
-                .flow(badItemInInputJobStep1())
+                .flow(fileToDbHasParameterJobStep1())
                 .end()
                 .build();
     }
 
     @Bean
-    public Step badItemInInputJobStep1() {
+    public Step fileToDbHasParameterJobStep1() {
         return stepBuilderFactory.get("step1")
                 .<Person, Person> chunk(10)
-                .reader(badItemInInputJobItemReader())
-                .processor(badItemInInputJobProcessor())
-                .writer(badItemInInputJobItemWriter())
+                .reader(fileToDbHasParameterJobItemReader())
+                .processor(fileToDbHasParameterJobProcessor())
+                .writer(fileToDbHasParameterJobItemWriter())
                 .allowStartIfComplete(true)
                 .build();
     }

@@ -28,6 +28,7 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.base.Strings;
@@ -64,6 +65,9 @@ public class TbatchBase extends Tbase {
 	@Autowired
 	protected JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	protected ApplicationContext applicationContext;
+	
 	private String jobName;
 	
 	public TbatchBase(String jobName) {
@@ -95,26 +99,26 @@ public class TbatchBase extends Tbase {
 		assertThat("job exit code should be " + exitStatus, je.getExitStatus(), equalTo(exitStatus));
 	}
 	
-	protected int countCurrentJobInstanceNumber(String jobName) {
+	protected int countCurrentJobInstanceNumber() {
 		return jobExplorer.getJobInstances(jobName, 0, 10000).size();
 	}
 	
-	protected void bassertJobInstanceNumber(String jobName,  int num) {
-		assertThat("job instance number should be " + num, countCurrentJobInstanceNumber(jobName), equalTo(num));
+	protected void bassertJobInstanceNumber(int num) {
+		assertThat("job instance number should be " + num, countCurrentJobInstanceNumber(), equalTo(num));
 	}
 	
-	protected int countCurrentJobExecNumber(String jobName) {
+	protected int countCurrentJobExecNumber() {
 		List<JobInstance> jins = jobExplorer.getJobInstances(jobName, 0, 10000);
 		return jins.stream().map(j -> jobExplorer.getJobExecutions(j).size()).reduce(0, Integer::sum);
 	}
 
-	protected int countCurrentStepExecNumber(String jobName) {
+	protected int countCurrentStepExecNumber() {
 		List<JobInstance> jins = jobExplorer.getJobInstances(jobName, 0, 10000);
 		return jins.stream().flatMap(j -> jobExplorer.getJobExecutions(j).stream()).map(je -> je.getStepExecutions().size()).reduce(0, Integer::sum);
 	}
 	
-	protected void bassertStepExecutionNumber(String jobName,  int num) {
-		assertThat("step execute instance number should be " + num, countCurrentStepExecNumber(jobName), equalTo(num));
+	protected void bassertStepExecutionNumber(int num) {
+		assertThat("step execute instance number should be " + num, countCurrentStepExecNumber(), equalTo(num));
 	}
 	
 	protected int countCurrentItemNumberInDb() {
@@ -136,8 +140,8 @@ public class TbatchBase extends Tbase {
 	}
 
 
-	protected void bassertJobExecNumber(String jobName,  int num) {
-		assertThat("execute instance number should be " + num, countCurrentJobExecNumber(jobName), equalTo(num));
+	protected void bassertJobExecNumber(int num) {
+		assertThat("execute instance number should be " + num, countCurrentJobExecNumber(), equalTo(num));
 	}
 	
 	protected void clearDb(String tableName) {
@@ -148,7 +152,7 @@ public class TbatchBase extends Tbase {
 		LOGGER.info("delete {} from {}", affected, tableName);
 	}
 	
-	protected Path getFixturePath(String jobName) {
+	protected Path getFixturePath() {
 		Path pp = Paths.get(BATCH_FIXTURE_BASE);
 		if (!Files.exists(pp)) {
 			pp.toFile().mkdirs();
@@ -156,8 +160,13 @@ public class TbatchBase extends Tbase {
 		return pp.resolve(jobName + ".csv");
 	}
 	
-	protected void setupFixtures(String jobName, int itemNumbers) throws NoSuchJobException, IOException {
-		Path datap = getFixturePath(jobName);
+	protected String getFixtureResouceName() {
+		return "file:///" + getFixturePath().toAbsolutePath().normalize().toString().replaceAll("\\\\", "/");
+	}
+
+	
+	protected void setupFixtures(int itemNumbers) throws NoSuchJobException, IOException {
+		Path datap = getFixturePath();
 		PrintWriter pw = new PrintWriter(datap.toFile());
 		IntStream.range(0, itemNumbers).mapToObj(i -> UUID.randomUUID().toString() + "," + UUID.randomUUID().toString()).forEach(s -> pw.println(s));
 		pw.flush();

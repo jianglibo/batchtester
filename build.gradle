@@ -96,6 +96,14 @@ dependencies {
     
     compile("org.springframework.boot:spring-boot-starter-batch")
     compile("org.springframework.boot:spring-boot-starter-integration")
+    
+    // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-file
+	compile group: 'org.springframework.integration', name: 'spring-integration-file' //, version: '4.3.6.RELEASE'
+	
+	// https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-http
+	compile group: 'org.springframework.integration', name: 'spring-integration-http' //, version: '4.3.6.RELEASE'
+	
+    
 
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-hadoop-boot
     compile group: 'org.springframework.data', name: 'spring-data-hadoop-boot', version: '2.4.0.RELEASE'

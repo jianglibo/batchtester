@@ -27,10 +27,10 @@ import org.springframework.test.context.jdbc.Sql;
 import com.jianglibo.batch.batch.TbatchBase;
 
 @Sql({"classpath:schema1-all.sql"})
-public class TestBadItemInInputJobOneInstanceParams extends TbatchBase {
+public class TestFileToDbHasParameterBatch extends TbatchBase {
 	
-	public TestBadItemInInputJobOneInstanceParams() {
-		super(BadItemInInputBatchConfigurationParams.JOB_NAME);
+	public TestFileToDbHasParameterBatch() {
+		super(FileToDbHasParameterBatchConfiguration.JOB_NAME);
 	}
 
 	public static int fixtureItemNumber = 100;
@@ -39,13 +39,11 @@ public class TestBadItemInInputJobOneInstanceParams extends TbatchBase {
 	
 	@Before
 	public void b() throws NoSuchJobException, IOException {
-		// This line
-		clearBatchDb();
-		setupFixtures(getJobName(), fixtureItemNumber);
-		List<String> allLines = Files.readAllLines(getFixturePath(getJobName()));
+		setupFixtures(fixtureItemNumber);
+		List<String> allLines = Files.readAllLines(getFixturePath());
 		// replace a bad line.
 		allLines.set(badLinePosition, "1111111111111111");
-		Files.write(getFixturePath(getJobName()), allLines);
+		Files.write(getFixturePath(), allLines);
 		clearDb(null);
 	}
 	
@@ -54,13 +52,13 @@ public class TestBadItemInInputJobOneInstanceParams extends TbatchBase {
 		
 		bassertCountTable(null, 0);
 		
-		int jobInstanceNumber = countCurrentJobInstanceNumber(getJobName());
+		int jobInstanceNumber = countCurrentJobInstanceNumber();
 
 		// uncomment these line will explain must batch concept.
 		Job jb1 = jobRegistry.getJob(getJobName());
 		JobExecution je1 = jobLauncher.run(jb1, new JobParameters());
 		
-		bassertJobInstanceNumber(getJobName(), jobInstanceNumber + 1);
+		bassertJobInstanceNumber(jobInstanceNumber + 1);
 		
 		// We know job will be failure.
 		assertThat(je1.getStatus(), equalTo(BatchStatus.FAILED));
@@ -78,16 +76,16 @@ public class TestBadItemInInputJobOneInstanceParams extends TbatchBase {
 		// Should be at chunk size.
 		assertTrue(getWriteCount(je1) % 10 == 0);
 		
-		int steps = countCurrentStepExecNumber(getJobName());
+		int steps = countCurrentStepExecNumber();
 		
 		Job jb2 = jobRegistry.getJob(getJobName());
 		
 		JobExecution je2 = jobLauncher.run(jb2, new JobParameters());
 		
 		// no new job instance is created, because it has same parameter.
-		bassertJobInstanceNumber(getJobName(), jobInstanceNumber + 1);
+		bassertJobInstanceNumber(jobInstanceNumber + 1);
 		
-		bassertStepExecutionNumber(getJobName(), steps + 1);
+		bassertStepExecutionNumber(steps + 1);
 
 		assertThat(je2.getStatus(), equalTo(BatchStatus.FAILED));
 		
